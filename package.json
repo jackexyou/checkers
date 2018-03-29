@@ -2,7 +2,7 @@
   "name": "checkers",
   "version": "1.0.0",
   "description": "multiplayer checkers game",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
