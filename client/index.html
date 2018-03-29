@@ -1,13 +1,48 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.js"></script>
 
+
+<button onclick="createGame()">Create Room</button>
+<form id="room">
+	<input type="text" name="room" id="room-input" placeholder="Enter Room ID" required>
+	<button >Join Game</button>
+</form>
+
+<h2 id="current-room"></h2>
+
 <script>
 	var socket = io();
+
+	socket.on("roomID", function(data) {
+	 	document.getElementById('current-room').innerHTML = data.roomID
+	})
 
 	var createGame = function(){
 		 socket.emit("createGame", {
 
 		 })
+
+		 
+		 
 	}
+
+	var joinRoom = function(){
+		 socket.emit("joinRoom", {
+		 	roomID: document.getElementById('room-input').value
+		 })
+	}
+
+
+	var form = document.getElementById('room');
+	form.addEventListener('submit', function(e) {
+		var input = document.getElementById('room-input')
+		var value = input.value;
+		socket.emit("joinRoom", {
+		 	roomID: value
+		})
+
+		e.preventDefault();
+	})
+
+
 	
 </script>
-<button onclick="createGame()">Create Room</button>

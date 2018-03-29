@@ -20,10 +20,17 @@ io.sockets.on('connection', function(socket) {
 	socket.on('createGame', function(data){
       socket.join('Room ' + ++room);
       console.log('room ' + room + ' created')
+      socket.emit('roomID',{
+				roomID: room,
+			})
   });
 
-	socket.on('happy', function(data){
-		console.log("happy because" + data.reason)
+	socket.on('joinRoom', function(data){
+		socket.join('Room ' + data.roomID);
+		console.log("Room ID: " + data.roomID)
+		socket.emit('roomID',{
+			roomID: data.roomID,
+		})		
 	})
-
+	
 });
