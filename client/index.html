@@ -1,8 +1,13 @@
-Hello world
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.js"></script>
 
 <script>
-	
+	var socket = io();
+
+	var createGame = function(){
+		 socket.emit("createGame", {
+
+		 })
+	}
 	
 </script>
+<button onclick="createGame()">Create Room</button>
