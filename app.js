@@ -7,10 +7,23 @@ app.get('/', function(req, res){
 });
 app.use('/client', express.static(__dirname + '/client'));
 
+var path = require('path');
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 serv.listen(2000);
 console.log("server started");
 
+// Game Logic
+var Game = function(roomID){
+    this.roomID = roomID;
+    this.board = new Array(64);
+    this.turn = 0;
+}
 
+
+
+// Room setup
 var room = 0 
 
 var io = require('socket.io')(serv,{});
