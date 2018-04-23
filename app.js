@@ -18,9 +18,94 @@ console.log("server started");
 var Game = function(roomID){
     this.roomID = roomID;
     this.board = new Array(64);
-    this.turn = 0;
 }
 
+Game.prototype.available = function(p) {
+	var av = new Array(4);
+	var x = (p % 8);
+	var y = Math.floor(p / 8);
+
+	// top left
+	if ((x > 0) && (y > 0)) {
+		if (this.board[p - 9]) {
+			if ((x > 1) && (y > 1) && !this.board[p - 18]) {
+				av[0] = p - 18
+			}
+		} else {
+			av[0] = p - 9
+		}
+	} 
+
+	// top right
+	if ((x < 7) && (y > 0)) {
+		if (this.board[p - 7]) {
+			if ((x < 6) && (y > 1) && !this.board[p - 14]) {
+				av[1] = p - 14
+			}	
+		} else {
+			av[1] = p - 7
+		}
+	}
+
+	// bottom left
+	if ((x > 0) && (y < 7)) {
+		if (this.board[p + 7]) {
+			if ((x > 1) && (y < 6) && !this.board[p + 14]) {
+				av[2] = p + 14
+			}	
+		} else {
+			av[2] = p + 7
+		}
+	}
+
+	// bottom right
+	if ((x < 7) && (y < 7)) {
+		if (this.board[p + 9]) {
+			if ((x < 6) && (y < 6) && !this.board[p + 18]) {
+				av[3] = p + 18
+			}	
+		} else {
+			av[3] = p + 9
+		}	
+	}
+
+	// left limit 
+	if (x == 0) {
+		av[0] = ""
+		av[2]	= ""
+	}
+
+	// right limit
+	if (x == 7) {
+		av[1] = ""
+		av[3]	= ""
+	}
+
+	// top limit
+	if (y == 0) {
+		av[0] = ""
+		av[1] = ""
+	}
+
+	// bottom limit
+	if (y == 7) {
+		av[2] = ""
+		av[3] = ""
+	}
+
+
+	// piece id
+
+	if (this.board[p] == "b") {
+		av[2] = ""
+		av[3] = ""
+	} else if (this.board[p] == "r") {
+		av[0] = ""
+		av[1] = ""
+	} 
+
+	return av
+}
 
 
 // Room setup
