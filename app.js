@@ -28,6 +28,8 @@ var Game = function(roomID){
     	"","b","","b","","b","","b"];
 }
 
+// Check for available moves
+
 Game.prototype.available = function(p) {
 	var av = new Array(4);
 	var x = (p % 8);
@@ -115,6 +117,20 @@ Game.prototype.available = function(p) {
 	return av
 }
 
+// Change the board state
+
+Game.prototype.action = function(arr) {
+	ori_pos = arr[0]
+	new_pos = arr[1]
+	if (Math.abs(ori_pos, new_pos) > 9) {
+		cap_pos = (new_pos - ori_pos) / 2
+		this.board[ori_pos + cap_pos] = ""
+	}
+
+	this.board[new_pos] = this.board[ori_pos]
+	this.board[ori_pos] = ""
+}
+
 
 // Room setup
 var room = 0 
@@ -135,19 +151,26 @@ io.sockets.on('connection', function(socket) {
     socket.emit('roomID',{
 			roomID: room,
 		})
+
+		socket.emit("board", {
+	  	board:g.board
+	  });
   });
 
   socket.on("position", function(data){
-  	console.log(data.position)
   	var moves = g.available(data.position)
-  	console.log(moves)
   	socket.emit("moves", {
   		moves: moves
   	})
   });
 
+
   socket.on("action", function(data){
   	console.log(data.action)
+  	g.action(data.action)
+  	socket.emit("board", {
+	  	board:g.board
+	  });
   });
 
 	// socket.on('joinRoom', function(data){

@@ -1,15 +1,14 @@
-board = 
-    	["r","","r","","r","","r","",
-    	"","r","","r","","r","","r",
-    	"r","","r","","r","","r","",
-    	"","","","","","","","",
-    	"","","r","","","","","",
-    	"","b","","b","","b","","b",
-    	"b","","b","","b","","b","",
-    	"","b","","b","","b","","b"];
+// GLOBAL 
+
+var board = [];
+var selected = 0;
+
+
+
+// helper functions
 
 function displayPieces() {
-	for (var i = 0; i < board.length; i++) {
+	for (var i = 0; i < 64; i++) {
 			var t = 10 + Math.floor(i / 8) * 80;
 			var l = 10 + (i % 8) * 80;
  		if (board[i] == "r") {
@@ -51,7 +50,6 @@ function displayPieces() {
 
 }
 
-displayPieces()
 
 function highlight(n) {
 	$("#p" + n).css({"background": "#704923", "cursor": "pointer"});
@@ -62,6 +60,8 @@ function unhighlight() {
 	$(".square").removeAttr("style")
 	$(".square").removeClass("move")
 }
+
+
 	
 
 var socket = io();
@@ -78,31 +78,38 @@ var createGame = function(){
 
 // movement
 
-$(".checker").on("click", function(){
+
+$(document).on("click", ".checker", function(){
 	unhighlight()
-	var pos = parseInt(event.target.id.substring(1))
+	selected = parseInt(event.target.id.substring(1))
 	socket.emit("position", {
-		position: pos
+		position: selected
 	});
 
 	socket.on("moves", function(data){
-  	for (var i = data.moves.length - 1; i >= 0; i--) {
+  	for (let i = data.moves.length - 1; i >= 0; i--) {
   		if (data.moves[i]){
   			highlight(data.moves[i])
   		}
   	}
   });
 
-  $(document).on("click", ".move",function(){
-		var m = parseInt(event.target.id.substring(1))
-		action = [pos, m]
-		alert(action);
-		socket.emit("action", {
-			action: action
-		});
+  
+});
+
+$(document).on("click", ".move",function(){
+	let m = parseInt(event.target.id.substring(1))
+	action = [selected, m]
+	socket.emit("action", {
+		action: action
 	});
+});
 
-
+socket.on("board",function(data){
+	board = data.board;
+	$(".checker").remove();
+	unhighlight();
+	displayPieces();
 });
 
 
