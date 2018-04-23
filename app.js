@@ -17,7 +17,15 @@ console.log("server started");
 // Game Logic
 var Game = function(roomID){
     this.roomID = roomID;
-    this.board = new Array(64);
+    this.board = 
+    	["r","","r","","r","","r","",
+    	"","r","","r","","r","","r",
+    	"r","","r","","r","","r","",
+    	"","","","","","","","",
+    	"","","","","","","","",
+    	"","b","","b","","b","","b",
+    	"b","","b","","b","","b","",
+    	"","b","","b","","b","","b"];
 }
 
 Game.prototype.available = function(p) {
@@ -110,25 +118,45 @@ Game.prototype.available = function(p) {
 
 // Room setup
 var room = 0 
+var games = []
+var g = new Game(room);
 
 var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket) {
 	console.log('socket connection');
+	
+
 
 	socket.on('createGame', function(data){
-      socket.join('Room ' + ++room);
-      console.log('room ' + room + ' created')
-      socket.emit('roomID',{
-				roomID: room,
-			})
+    socket.join('Room ' + ++room);
+    
+    games.push(g)
+    console.log('room ' + room + ' created')
+    socket.emit('roomID',{
+			roomID: room,
+		})
   });
 
-	socket.on('joinRoom', function(data){
-		socket.join('Room ' + data.roomID);
-		console.log("Room ID: " + data.roomID)
-		socket.emit('roomID',{
-			roomID: data.roomID,
-		})		
-	})
+  socket.on("position", function(data){
+  	console.log(data.position)
+  	var moves = g.available(data.position)
+  	console.log(moves)
+  	socket.emit("moves", {
+  		moves: moves
+  	})
+  });
+
+  socket.on("action", function(data){
+  	console.log(data.action)
+  });
+
+	// socket.on('joinRoom', function(data){
+	// 	socket.join('Room ' + data.roomID);
+	// 	console.log(games[data.roomID - 1])
+	// 	console.log("Room ID: " + data.roomID)
+	// 	socket.emit('roomID',{
+	// 		roomID: data.roomID,
+	// 	})		
+	// })
 	
 });
