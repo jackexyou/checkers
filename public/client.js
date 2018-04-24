@@ -110,6 +110,10 @@ socket.on("board",function(data){
 	displayPieces();
 });
 
+socket.on("err",function(data){
+	alert(data.message)
+});
+
 // rooms
 
 var form = document.getElementById('room');

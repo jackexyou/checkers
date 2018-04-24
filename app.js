@@ -17,6 +17,7 @@ console.log("server started");
 // Game Logic
 var Game = function(roomID){
     this.roomID = roomID;
+    this.turn = 0;
     this.board = 
     	["r","","r","","r","","r","",
     	"","r","","r","","r","","r",
@@ -78,9 +79,9 @@ Game.prototype.available = function(p) {
 
 	// bottom right
 	if ((x < 7) && (y < 7)) {
-		if (this.board[p + 9].substring(0,1) != colour) {
+		if (this.board[p + 9].substring(0,1) == colour) {
 			av[3] = ""
-		} if (this.board[p + 9]) {
+		} else if (this.board[p + 9]) {
 			if ((x < 6) && (y < 6) && !this.board[p + 18]) {
 				av[3] = p + 18
 			}	
@@ -137,34 +138,40 @@ Game.prototype.action = function(arr) {
 		this.board[ori_pos + cap_pos] = ""
 	}
 
-	this.board[new_pos] = this.board[ori_pos]
+	if ((this.board[ori_pos] == "b") && (new_pos < 8)) {
+		this.board[new_pos] = "bk"
+	} else if ((this.board[ori_pos] == "r") && (new_pos > 55)) {
+		this.board[new_pos] = "rk"
+	} else {
+		this.board[new_pos] = this.board[ori_pos]
+	}
+
 	this.board[ori_pos] = ""
 
-
+	
 }
 
 
 // Global
-var room = 0 
+var room = 1;
 var games = []
-var g;
-var curr_room;
+g = new Game(room);
 
 // socket connection
 
 var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket) {
-	console.log('socket connection');
+	console.log('connected');
+
+	// Create game
 
 	socket.on('createGame', function(data) {
 		g = new Game(room);
 
     socket.join('Room ' + room);
-    curr_room = room;
-    room++;
-    
-    games.push(g)
     console.log('room ' + room + ' created')
+    games.push(g)
+    
     socket.emit('roomID',{
 			roomID: room,
 		})
@@ -172,10 +179,49 @@ io.sockets.on('connection', function(socket) {
 		socket.emit("board", {
 	  	board:g.board
 	  });
+
+	  socket.emit("playerID", {
+	  	playerID: "black"
+	  })
+
+	  room++;
   });
+
+  // Join Room
+
+  socket.on('joinRoom', function(data){
+  	let name = 'Room ' + data.roomID;
+  	let r = io.sockets.adapter.rooms[name]
+  	console.log(r)
+  	if (r && r.length == 1) {
+			socket.join(name);
+			g = games[data.roomID - 1]
+			if (g) {
+				io.sockets.emit("board", {
+			  	board:g.board
+			  });
+			}
+			
+			console.log("Room ID: " + data.roomID)
+			socket.emit('roomID',{
+				roomID: data.roomID,
+			})
+
+			socket.emit("playerID", {
+		  	playerID: "black"
+		  })
+		} else {
+			socket.emit('err', {
+				message: 'Sorry, The room is full!'
+			});
+		}
+	})
+
+	// Move Processing
 
   socket.on("position", function(data){
   	let moves = g.available(data.position)
+  	console.log(moves) 
   	socket.emit("moves", {
   		moves: moves
   	})
@@ -183,23 +229,12 @@ io.sockets.on('connection', function(socket) {
 
 
   socket.on("action", function(data){
-  	console.log(data.action)
   	g.action(data.action)
   	io.sockets.emit("board", {
 	  	board:g.board
 	  });
   });
 
-	socket.on('joinRoom', function(data){
-		socket.join('Room ' + data.roomID);
-		g = games[data.roomID - 1]
-		io.sockets.emit("board", {
-	  	board:g.board
-	  });
-		console.log("Room ID: " + data.roomID)
-		socket.emit('roomID',{
-			roomID: data.roomID,
-		})		
-	})
+	
 	
 });
