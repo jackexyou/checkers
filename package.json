@@ -4,8 +4,13 @@
   "description": "multiplayer checkers game",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+
+  "dependencies": {
+    "express": "^4.15.2",
+    "socket.io":"^2.0"
+  }
 }
