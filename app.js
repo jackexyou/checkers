@@ -11,7 +11,7 @@ var path = require('path');
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-serv.listen(2000);
+serv.listen(process.env.PORT || 2000)
 console.log("server started");
 
 // Game Logic
