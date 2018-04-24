@@ -34,43 +34,53 @@ Game.prototype.available = function(p) {
 	var av = new Array(4);
 	var x = (p % 8);
 	var y = Math.floor(p / 8);
+	var colour = this.board[p].substring(0,1);
 
 	// top left
 	if ((x > 0) && (y > 0)) {
-		if (this.board[p - 9]) {
+		if ((this.board[p - 9].substring(0,1) == colour)) {
+			av[0] = "";
+		} else if (this.board[p - 9]) {
 			if ((x > 1) && (y > 1) && !this.board[p - 18]) {
-				av[0] = p - 18
+				av[0] = p - 18;
 			}
 		} else {
-			av[0] = p - 9
+			av[0] = p - 9;
 		}
+
 	} 
 
 	// top right
 	if ((x < 7) && (y > 0)) {
-		if (this.board[p - 7]) {
+		if (this.board[p - 7].substring(0,1) == colour) {
+			av[1] = "";
+		} else if (this.board[p - 7]) {
 			if ((x < 6) && (y > 1) && !this.board[p - 14]) {
-				av[1] = p - 14
+				av[1] = p - 14;
 			}	
 		} else {
-			av[1] = p - 7
+			av[1] = p - 7;
 		}
 	}
 
 	// bottom left
 	if ((x > 0) && (y < 7)) {
-		if (this.board[p + 7]) {
+		if (this.board[p + 7].substring(0,1) == colour) {
+			av[2] = "";
+		} else if (this.board[p + 7]) {
 			if ((x > 1) && (y < 6) && !this.board[p + 14]) {
-				av[2] = p + 14
+				av[2] = p + 14;
 			}	
 		} else {
-			av[2] = p + 7
+			av[2] = p + 7;
 		}
 	}
 
 	// bottom right
 	if ((x < 7) && (y < 7)) {
-		if (this.board[p + 9]) {
+		if (this.board[p + 9].substring(0,1) != colour) {
+			av[3] = ""
+		} if (this.board[p + 9]) {
 			if ((x < 6) && (y < 6) && !this.board[p + 18]) {
 				av[3] = p + 18
 			}	
@@ -129,6 +139,8 @@ Game.prototype.action = function(arr) {
 
 	this.board[new_pos] = this.board[ori_pos]
 	this.board[ori_pos] = ""
+
+
 }
 
 
