@@ -132,19 +132,24 @@ Game.prototype.action = function(arr) {
 }
 
 
-// Room setup
+// Global
 var room = 0 
 var games = []
-var g = new Game(room);
+var g;
+var curr_room;
+
+// socket connection
 
 var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket) {
 	console.log('socket connection');
-	
 
+	socket.on('createGame', function(data) {
+		g = new Game(room);
 
-	socket.on('createGame', function(data){
-    socket.join('Room ' + ++room);
+    socket.join('Room ' + room);
+    curr_room = room;
+    room++;
     
     games.push(g)
     console.log('room ' + room + ' created')
@@ -158,7 +163,7 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on("position", function(data){
-  	var moves = g.available(data.position)
+  	let moves = g.available(data.position)
   	socket.emit("moves", {
   		moves: moves
   	})
@@ -168,18 +173,21 @@ io.sockets.on('connection', function(socket) {
   socket.on("action", function(data){
   	console.log(data.action)
   	g.action(data.action)
-  	socket.emit("board", {
+  	io.sockets.emit("board", {
 	  	board:g.board
 	  });
   });
 
-	// socket.on('joinRoom', function(data){
-	// 	socket.join('Room ' + data.roomID);
-	// 	console.log(games[data.roomID - 1])
-	// 	console.log("Room ID: " + data.roomID)
-	// 	socket.emit('roomID',{
-	// 		roomID: data.roomID,
-	// 	})		
-	// })
+	socket.on('joinRoom', function(data){
+		socket.join('Room ' + data.roomID);
+		g = games[data.roomID - 1]
+		io.sockets.emit("board", {
+	  	board:g.board
+	  });
+		console.log("Room ID: " + data.roomID)
+		socket.emit('roomID',{
+			roomID: data.roomID,
+		})		
+	})
 	
 });

@@ -93,8 +93,6 @@ $(document).on("click", ".checker", function(){
   		}
   	}
   });
-
-  
 });
 
 $(document).on("click", ".move",function(){
@@ -111,9 +109,6 @@ socket.on("board",function(data){
 	unhighlight();
 	displayPieces();
 });
-
-
-
 
 // rooms
 
